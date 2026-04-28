@@ -108,11 +108,12 @@ export default class HASS extends EventEmitter {
                     this.emit('state_changed', response.event.data.new_state);
                 }
             } else if (response.type === 'auth_required') {
-                if (!this.options.password) {
+                const password = this.options.password || process.env.SUPERVISOR_TOKEN;
+                if (!password) {
                     this.emit('error', 'Password required. Connection closed');
                     socket.terminate();
                 } else {
-                    setTimeout(() => this.sendAuth(socket, this.options.password!), 50);
+                    setTimeout(() => this.sendAuth(socket, password), 50);
                 }
             } else if (response.type === 'auth_ok') {
                 setImmediate(() =>
