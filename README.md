@@ -106,6 +106,9 @@ Please check it https://www.smarthomejetzt.de/mit-iobroker-auf-eine-home-assista
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+* (@klein0r) Use /core/ instead of /api/ when connecting to supervisor directly (e.g. in ha app)
+
 ### 2.0.3 (2026-04-02)
 * (@GermanBluefox) Adapter was updated and migrated to TypeScript
 * (@Titanium177) Added roles for states and added debouncing for reading states from hass

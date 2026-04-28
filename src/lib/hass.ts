@@ -228,7 +228,7 @@ export default class HASS extends EventEmitter {
         }
 
         this.socket = new WebSocket(
-            `ws${this.options.secure ? 's' : ''}://${this.options.host}:${this.options.port}/api/websocket`,
+            `ws${this.options.secure ? 's' : ''}://${this.options.host}:${this.options.port}/${this.options.host === 'supervisor' ? 'core' : 'api'}/websocket`,
             { perMessageDeflate: false },
         );
 
