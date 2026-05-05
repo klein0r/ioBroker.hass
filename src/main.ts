@@ -403,26 +403,51 @@ class HassAdapter extends Adapter {
 
     private async deleteStaleObjects(expectedObjects: Set<string>): Promise<number> {
         const objectsToDelete: string[] = [];
+        let knownCount = 0;
         for (const id in this.hassObjects) {
             if (
                 Object.prototype.hasOwnProperty.call(this.hassObjects, id) &&
-                id.startsWith(`${this.namespace}.entities.`) &&
-                !expectedObjects.has(id)
+                id.startsWith(`${this.namespace}.entities.`)
             ) {
-                objectsToDelete.push(id);
+                knownCount++;
+                if (!expectedObjects.has(id)) {
+                    objectsToDelete.push(id);
+                }
             }
         }
 
+        // Sanity guard: if HASS returned a drastically smaller entity set than what we
+        // know (e.g. mid-startup after a restart), assume the data is incomplete and
+        // skip deletion. The next sync will retry.
+        if (knownCount > 10 && objectsToDelete.length > knownCount / 2) {
+            this.log.warn(
+                `Skipping deletion of ${objectsToDelete.length}/${knownCount} stale objects — HASS likely returned an incomplete state list. Will retry on next sync.`,
+            );
+            return 0;
+        }
+
+        let deletedCount = 0;
         for (const id of objectsToDelete) {
             try {
+                // Never auto-delete objects that hold user configuration like
+                // common.custom (history/influxdb/sql adapter settings) — losing
+                // those silently on a transient HASS hiccup would force the user
+                // to recreate them. See issue #165.
+                const existing = await this.getForeignObjectAsync(id);
+                const custom = (existing?.common as { custom?: Record<string, unknown> } | undefined)?.custom;
+                if (custom && Object.keys(custom).length) {
+                    this.log.debug(`Keeping "${id}" despite being stale: object holds custom adapter configuration`);
+                    continue;
+                }
                 await this.delObjectAsync(id);
                 delete this.hassObjects[id];
+                deletedCount++;
             } catch (err) {
                 this.log.error(`Error deleting object ${id}: ${err}`);
             }
         }
 
-        return objectsToDelete.length;
+        return deletedCount;
     }
 
     private async parseStates(entities: HassEntity[], services: HassServices): Promise<void> {
