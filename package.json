@@ -37,8 +37,7 @@
     "@iobroker/eslint-config": "^2.2.0",
     "@iobroker/legacy-testing": "^2.0.2",
     "@iobroker/testing": "^5.2.2",
-    "@types/ws": "^8.18.1",
-    "mocha": "^11.7.5"
+    "@types/ws": "^8.18.1"
   },
   "main": "build/main.js",
   "files": [
