@@ -109,6 +109,8 @@ Please check it https://www.smarthomejetzt.de/mit-iobroker-auf-eine-home-assista
 ### **WORK IN PROGRESS**
 * (@klein0r) Use /core/ instead of /api/ when connecting to supervisor directly (e.g. in ha app)
 * (@klein0r) Use ENV var SUPERVISOR_TOKEN as fallback for password
+
+### 2.0.4 (2026-05-05)
 * (@GermanBluefox) Tried to keep the custom settings of the objects when updating them with new data from HASS
 
 ### 2.0.3 (2026-04-02)
